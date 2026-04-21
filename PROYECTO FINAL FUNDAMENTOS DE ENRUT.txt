@@ -1,0 +1,588 @@
+PROYECTO FINAL FUNDAMENTOS DE ENRUTMIENTO
+
+R1
+ena
+conf t
+hostname R1
+
+conexión R1-R2
+----------------
+interface gi0/1
+ip address 192.168.100.1 255.255.255.252
+no shutdown
+
+INTERFAZ TRONCAL HACIA SW1
+--------------------------
+interface gi0/0
+no ip address
+no shutdown
+
+SUBINTERFACES (VLAN 300, 500, 999)
+----------------------------------
+
+interface gi0/0.300
+encapsulation dot1q 300
+ip address 192.168.30.2 255.255.255.0
+ip helper-address 192.168.100.2
+standby 1 ip 192.168.30.1
+standby 1 priority 90
+standby 1 preempt
+no shutdown
+
+interface gi0/0.500
+encapsulation dot1q 500
+ip address 192.168.50.2 255.255.255.0
+ip helper-address 192.168.100.2
+standby 2 ip 192.168.50.1
+standby 2 priority 90
+standby 2 preempt
+no shutdown
+
+interface gi0/0.999
+encapsulation dot1q 999
+ip address 192.168.99.2 255.255.255.0
+ip helper-address 192.168.100.2
+standby 3 ip 192.168.99.1
+standby 3 priority 90
+standby 3 preempt
+no shutdown
+
+ip route 0.0.0.0 0.0.0.0 192.168.100.2
+
+SSH
+--------
+ip domain-name campus.local
+crypto key generate general-keys (1024)
+
+username 20250771 privilege 1 secret cisco123
+username opelegrino privilege 15 secret cisco123
+line vty 0 4
+transport input ssh
+login local
+exit
+ip ssh version 2
+service password-encryption
+enable secret cisco123
+line console 0
+password cisco123
+login 
+end
+wr
+
+R2
+--------
+ena
+conf t
+hostname R2
+
+conexión R2-R1
+----------------
+interface gi0/1
+ip address 192.168.100.2 255.255.255.252
+no shutdown
+
+conexión R2-R4
+----------------
+interface s0/1/0
+ip address 192.168.100.10 255.255.255.252
+no shutdown
+
+conexión R2-R3
+----------------
+interface s0/1/1
+ip address 192.168.100.6 255.255.255.252
+no shutdown
+
+
+DHCP-EXCLUIR IP RESERVADAS
+-----------------------------
+ip dhcp excluded-address 192.168.30.1 192.168.30.10
+ip dhcp excluded-address 192.168.50.1 192.168.50.10
+ip dhcp excluded-address 192.168.99.1 192.168.99.10
+
+IP POOL VLAN 300,500,999
+----------------------------
+ip dhcp pool vlan300
+network 192.168.30.0 255.255.255.0
+default-router 192.168.30.1
+dns-server 192.168.32.5
+
+ip dhcp pool vlan500
+network 192.168.50.0 255.255.255.0
+default-router 192.168.50.1
+dns-server 192.168.32.5
+
+ip dhcp pool vlan999
+network 192.168.99.0 255.255.255.0
+default-router 192.168.99.1
+dns-server 192.168.32.5
+
+DIRECCIONAMIENTO ESTATICO
+----------------------------
+
+ip route 192.168.30.0 255.255.255.0 192.168.100.1
+ip route 192.168.30.0 255.255.255.0 192.168.100.9
+ip route 192.168.50.0 255.255.255.0 192.168.100.1
+ip route 192.168.50.0 255.255.255.0 192.168.100.9
+ip route 192.168.99.0 255.255.255.0 192.168.100.1
+ip route 192.168.99.0 255.255.255.0 192.168.100.9
+ip route 192.168.50.0 255.255.255.0 192.168.100.1
+ip route 192.168.32.0 255.255.255.0 192.168.100.5
+
+
+SSH
+--------
+ip domain-name campus.local
+crypto key generate general-keys (1024)
+
+username 20250771 privilege 1 secret cisco123
+username opelegrino privilege 15 secret cisco123
+line vty 0 4
+transport input ssh
+login local
+exit
+ip ssh version 2
+service password-encryption
+enable secret cisco123
+line console 0
+password cisco123
+login 
+end
+wr
+
+
+R3
+--------------------
+ena
+conf t
+hostname R3
+
+CONEXION R3-R2
+----------------
+interface s0/1/0 
+ip address  192.168.100.5 255.255.255.252
+no shutdown
+
+CONEXION R3-SW3
+-----------------
+interface gi0/0
+ip address 192.168.32.1 255.255.255.0
+ip helper-address 192.168.100.6
+no shutdown
+
+ip route 0.0.0.0 0.0.0.0 192.168.100.6
+
+
+SSH
+--------
+ip domain-name campus.local
+crypto key generate general-keys (1024)
+
+username 20250771 privilege 1 secret cisco123
+username opelegrino privilege 15 secret cisco123
+line vty 0 4
+transport input ssh
+login local
+exit
+ip ssh version 2
+service password-encryption
+enable secret cisco123
+line console 0
+password cisco123
+login 
+end
+wr
+
+
+R4
+---------------
+
+ena
+conf t
+hostname R4
+
+CONEXION R4-R2
+---------------
+interface s0/1/0
+ip address 192.168.100.9 255.255.255.252
+no shutdown
+
+
+CONEXION TRONCAL R4-SW2
+-----------------------
+interface gi0/1
+no ip address
+no shutdown
+
+SUBINTERFACES (VLAN 300, 500, 999)
+----------------------------------
+
+interface gi0/1.300
+encapsulation dot1q 300
+ip address 192.168.30.3 255.255.255.0
+ip helper-address 192.168.100.10
+standby 1 ip 192.168.30.1
+standby 1 priority 110
+standby 1 preempt
+no shutdown
+
+interface gi0/1.500
+encapsulation dot1q 500
+ip address 192.168.50.3 255.255.255.0
+ip helper-address 192.168.100.10
+standby 2 ip 192.168.50.1
+standby 2 priority 110
+standby 2 preempt
+no shutdown
+
+interface gi0/1.999
+encapsulation dot1q 999
+ip address 192.168.99.3 255.255.255.0
+ip helper-address 192.168.100.10
+standby 3 ip 192.168.99.1
+standby 3 priority 110
+standby 3 preempt
+no shutdown
+
+ip route 0.0.0.0 0.0.0.0 192.168.100.10
+
+SSH
+--------
+ip domain-name campus.local
+crypto key generate general-keys (1024)
+
+username 20250771 privilege 1 secret cisco123
+username opelegrino privilege 15 secret cisco123
+line vty 0 4
+transport input ssh
+login local
+exit
+ip ssh version 2
+service password-encryption
+enable secret cisco123
+line console 0
+password cisco123
+login 
+end
+wr
+
+
+SW1
+-----------
+
+en 
+conf t
+hostname SW1
+
+vlan 300
+name ESTUDIANTES
+vlan 500
+name ACADEMICOS
+vlan 999
+name NATIVA-ADMIN
+exit
+
+ETHERCHANNEL LACP SW2 (ENLACE TRONCAL)
+-----------------------
+interface range fa0/23-24
+switchport mode trunk
+switchport trunk native 999
+switchport trunk allowed vlan 300,500,999
+channel-group 1 mode active
+no shutdown
+
+interface port-channel1
+switchport mode trunk
+switchport trunk native vlan 999
+switchport trunk allowed vlan 300,500,999
+no shutdown
+
+interface gi0/2
+switchport mode trunk
+switchport trunk native vlan 999
+switchport trunk allowed vlan 300,500,999
+no shutdown
+
+
+VLAN 500
+--------------
+interface fa0/9
+switchport mode access
+switchport access vlan 500
+spanning-tree portfast
+no shutdown
+
+interface fa0/17
+switchport mode access
+switchport access vlan 500
+spanning-tree portfast
+no shutdown
+
+VLAN 300
+--------------
+interface fa0/6
+switchport mode access
+switchport access vlan 300
+spanning-tree portfast
+no shutdown
+
+interface fa0/20
+switchport mode access
+switchport access vlan 300
+spanning-tree portfast
+no shutdown
+
+
+interface vlan 999
+ip address 192.168.99.10 255.255.255.0
+no shutdown
+
+ip default-gateway 192.168.99.1
+
+
+spanning-tree vlan 300 root primary
+spanning-tree vlan 500 root primary
+spanning-tree vlan 999 root primary
+
+SSH
+--------
+ip domain-name campus.local
+crypto key generate general-keys (1024)
+
+username 20250771 privilege 1 secret cisco123
+username opelegrino privilege 15 secret cisco123
+line vty 0 4
+transport input ssh
+login local
+exit
+ip ssh version 2
+service password-encryption
+enable secret cisco123
+line console 0
+password cisco123
+login 
+end
+wr
+
+
+SW2
+----------
+
+en 
+conf t
+hostname SW2
+vlan 300
+name ESTUDIANTES
+vlan 500
+name ACADEMICOS
+vlan 999
+name NATIVA-ADMIN
+exit
+
+ETHERCHANNEL LACP SW1 (ENLACE TRONCAL)
+-----------------------
+interface range fa0/23-24
+switchport mode trunk
+switchport trunk native 999
+switchport trunk allowed vlan 300,500,999
+channel-group 1 mode active
+no shutdown
+
+interface port-channel1
+switchport mode trunk
+switchport trunk native vlan 999
+switchport trunk allowed vlan 300,500,999
+no shutdown
+interface gi0/2
+switchport mode trunk
+switchport trunk native vlan 999
+switchport trunk allowed vlan 300,500,999
+no shutdown
+
+
+interface fa0/5
+switchport mode access
+switchport access vlan 300
+spanning-tree portfast
+no shutdown
+
+interface fa0/20
+switchport mode access
+switchport access vlan 300
+spanning-tree portfast
+no shutdown
+
+interface fa0/9
+switchport mode access
+switchport access vlan 500
+spanning-tree portfast
+no shutdown
+
+interface fa0/17
+switchport mode access
+switchport access vlan 500
+spanning-tree portfast
+no shutdown
+
+interface vlan 999
+ip address 192.168.99.11 255.255.255.0
+no shutdown
+ip default-gateway 192.168.99.1
+
+spanning-tree vlan 300 root secondary
+spanning-tree vlan 500 root secondary
+spanning-tree vlan 999 root secondary
+
+SSH (1024)
+username 
+--------
+ip domain-name campus.local
+crypto key generate rsa general-keys 
+
+username 20250771 privilege 1 secret cisco123
+username opelegrino privilege 15 secret cisco123
+line vty 0 4
+transport input ssh
+login local
+exit
+ip ssh version 2
+service password-encryption
+enable secret cisco123
+line console 0
+password cisco123
+login 
+end
+wr
+
+
+SW3
+--------
+ena
+conf t
+hostname SW3
+vlan 300
+name ESTUDIANTES
+vlan 500
+name ACADEMICOS
+vlan 999
+name NATIVA-ADMIN
+exit
+
+interface fa0/3
+switchport mode access
+spanning-tree portfast
+no shutdown
+
+interface fa0/2
+switchport mode access
+spanning-tree portfast
+no shutdown
+
+interface fa0/4
+switchport mode access
+spanning-tree portfast
+no shutdown
+
+interface gi0/1
+switchport mode access
+no shutdown
+
+interface gi0/2
+switchport mode access
+no shutdown
+
+interface vlan 1
+ip address 192.168.32.2 255.255.255.0
+no shutdown
+ip default-gateway 192.168.32.1
+
+SSH
+--------
+ip domain-name campus.local
+crypto key generate general-keys 
+
+username 20250771 privilege 1 secret cisco123
+username opelegrino privilege 15 secret cisco123
+line vty 0 4
+transport input ssh
+login local
+exit
+ip ssh version 2
+service password-encryption
+enable secret cisco123
+line console 0
+password cisco123
+login 
+end
+wr
+
+
+DNS-WEB-SERVER
+--------------------------
+desktop > ip configuration
+
+ip address: 192.168.32.5
+subnet mask: 255.255.255.0
+default gateway: 192.168.32.1
+dns-server :192.168.32.5
+
+
+services > dhcp
+pool name: LAN-R3
+network: 192.168.32.0
+subnet mask: 255.255.255.0
+default gateway: 192.168.32.1
+dns-server :192.168.32.5
+strat ip: 192.168.32.3
+max users: 253
+save > on
+
+services > dns
+
+satus: on
+agragar registro
+client name: wic
+ip address: 192.168.32.4
+add>save
+
+
+services > aaa
+
+satus: on
+client name: wic
+secret: cisco123
+client ip: 192.168.32.4
+radius port: 1812
+add
+username: ELIANNY
+password: cisco123
+add 
+
+
+PC MELLA-ADMIN
+(CONFIGURACION GRAFICA)
+
+WLC-2504
+--------------
+CONFIG > MANAGEMENT
+IP ADDRESS: 192.168 32.4
+SUBNET MASK 255.255.255.0
+GATEWAY: 192.168.32.1
+DNS SERVER: 192.168.32.5
+
+ACCEDER DESDE LA PC MELLA ADMIN
+---------------------------------
+DESKTOP >WEB BROUSER >https://192.168.32.4
+user: admin
+pass: Cisco123
+
+
+
+
+
+
+
+
+
+
+
